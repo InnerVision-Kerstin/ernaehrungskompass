@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blutgruppen Ernährung</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400&display=swap');
+
+  :root {
+    --sage: #8FA67A;
+    --apricot: #F4C27E;
+    --rose: #D3B1C2;
+    --dark: #2C1F1A;
+    --mauve: #4A3040;
+    --bg: #FAF8F5;
+    --green: #5a9e6f;
+    --green-bg: #edf7f0;
+    --yellow: #d4900a;
+    --yellow-bg: #fef8e7;
+    --red: #c0392b;
+    --red-bg: #fdf0ef;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--dark);
+    min-height: 100vh;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  header {
+    background: var(--sage);
+    padding: 28px 20px 22px;
+    text-align: center;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: #fff;
+    font-weight: 400;
+  }
+
+  header p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .blood-selector {
+    display: flex;
+    gap: 0;
+    background: #fff;
+    border-bottom: 2px solid #ece7e2;
+  }
+
+  .blood-btn {
+    flex: 1;
+    padding: 14px 4px;
+    border: none;
+    background: transparent;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: #bbb;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+  }
+
+  .blood-btn span {
+    display: block;
+    font-family: 'Lato', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    font-weight: 300;
+  }
+
+  .blood-btn.active {
+    color: var(--sage);
+    border-bottom-color: var(--sage);
+  }
+
+  .blood-btn:hover { color: var(--sage); }
+
+  .search-wrap {
+    padding: 16px 16px 8px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 2px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    background: #fff;
+    color: var(--dark);
+    outline: none;
+  }
+
+  .search-wrap input:focus { border-color: var(--sage); }
+  .search-wrap input::placeholder { color: #bbb; }
+
+  .cat-tabs {
+    padding: 0 16px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .cat-tab {
+    padding: 5px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--mauve);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cat-tab.active, .cat-tab:hover {
+    background: var(--sage);
+    border-color: var(--sage);
+    color: #fff;
+  }
+
+  .filter-row {
+    padding: 0 16px 12px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .filter-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.4;
+  }
+
+  .filter-btn.active { opacity: 1; }
+
+  .filter-btn.green { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green); }
+  .filter-btn.yellow { background: var(--yellow-bg); color: var(--yellow); border: 1.5px solid var(--yellow); }
+  .filter-btn.red { background: var(--red-bg); color: var(--red); border: 1.5px solid var(--red); }
+
+  .list {
+    padding: 0 16px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .item {
+    background: #fff;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-left: 3px solid transparent;
+  }
+
+  .item.g { border-left-color: var(--green); }
+  .item.n { border-left-color: var(--yellow); }
+  .item.v { border-left-color: var(--red); }
+
+  .item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-emoji { font-size: 20px; flex-shrink: 0; }
+
+  .item-name {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--dark);
+  }
+
+  .item-cat {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 1px;
+  }
+
+  .item-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+
+  .badge-g { background: var(--green-bg); color: var(--green); }
+  .badge-n { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-v { background: var(--red-bg); color: var(--red); }
+
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: #bbb;
+    font-size: 15px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    padding: 8px 16px 14px;
+    font-size: 11px;
+    color: #999;
+    flex-wrap: wrap;
+  }
+
+  .legend span { display: flex; align-items: center; gap: 4px; }
+
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .dot-g { background: var(--green); }
+  .dot-n { background: var(--yellow); }
+  .dot-r { background: var(--red); }
+
+  .disclaimer {
+    margin: 12px 16px;
+    padding: 10px 12px;
+    background: #fdf8f4;
+    border-left: 3px solid var(--apricot);
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Blutgruppen Ernährung</h1>
+  <p>Nach D'Adamo · Österreichische Lebensmittel</p>
+</header>
+
+<div class="blood-selector" id="bloodSel"></div>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Lebensmittel suchen…" oninput="render()">
+</div>
+
+<div class="legend">
+  <span><div class="dot dot-g"></div> Sehr bekömmlich</span>
+  <span><div class="dot dot-n"></div> Neutral</span>
+  <span><div class="dot dot-r"></div> Vermeiden</span>
+</div>
+
+<div class="cat-tabs" id="catTabs"></div>
+
+<div class="filter-row">
+  <button class="filter-btn green active" onclick="toggleFilter('g', this)">✓ Bekömmlich</button>
+  <button class="filter-btn yellow active" onclick="toggleFilter('n', this)">~ Neutral</button>
+  <button class="filter-btn red active" onclick="toggleFilter('v', this)">✗ Vermeiden</button>
+</div>
+
+<div class="list" id="list"></div>
+
+<div class="disclaimer">
+  Nach D'Adamo "4 Blutgruppen – Vier Strategien für ein gesundes Leben". Wissenschaftlich nicht belegt. Eigene Körperwahrnehmung geht vor.
+</div>
+
+<script>
+// g = sehr bekömmlich, n = neutral, v = vermeiden
+// Struktur: { name, emoji, kat, 0, A, B, AB }
+const foods = [
+  // FLEISCH
+  { name: "Rindfleisch", emoji: "🥩", kat: "Fleisch", 0:"g", A:"v", B:"g", AB:"n" },
+  { name: "Lamm", emoji: "🥩", kat: "Fleisch", 0:"g", A:"v", B:"g", AB:"n" },
+  { name: "Leber (Rind)", emoji: "🥩", kat: "Fleisch", 0:"g", A:"v", B:"n", AB:"n" },
+  { name: "Schweinefleisch", emoji: "🥩", kat: "Fleisch", 0:"v", A:"v", B:"v", AB:"v" },
+  { name: "Speck / Schinken", emoji: "🥓", kat: "Fleisch", 0:"v", A:"v", B:"v", AB:"v" },
+  { name: "Hühnerfleisch", emoji: "🍗", kat: "Fleisch", 0:"n", A:"g", B:"v", AB:"n" },
+  { name: "Pute", emoji: "🍗", kat: "Fleisch", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Ente", emoji: "🍗", kat: "Fleisch", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Wildgeflügel", emoji: "🍗", kat: "Fleisch", 0:"g", A:"n", B:"n", AB:"n" },
+  { name: "Wildfleisch (Hirsch, Reh)", emoji: "🥩", kat: "Fleisch", 0:"g", A:"n", B:"n", AB:"n" },
+
+  // FISCH & MEERESFRÜCHTE
+  { name: "Lachs", emoji: "🐟", kat: "Fisch", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Forelle", emoji: "🐟", kat: "Fisch", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Sardinen", emoji: "🐟", kat: "Fisch", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Thunfisch", emoji: "🐟", kat: "Fisch", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Hering", emoji: "🐟", kat: "Fisch", 0:"g", A:"g", B:"n", AB:"n" },
+  { name: "Scholle", emoji: "🐟", kat: "Fisch", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Karpfen", emoji: "🐟", kat: "Fisch", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Garnelen", emoji: "🦐", kat: "Fisch", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Tintenfisch", emoji: "🦑", kat: "Fisch", 0:"v", A:"v", B:"v", AB:"v" },
+  { name: "Muscheln", emoji: "🦪", kat: "Fisch", 0:"v", A:"v", B:"v", AB:"v" },
+
+  // MILCHPRODUKTE & EIER
+  { name: "Eier", emoji: "🥚", kat: "Milch & Eier", 0:"n", A:"n", B:"g", AB:"n" },
+  { name: "Butter", emoji: "🧈", kat: "Milch & Eier", 0:"n", A:"v", B:"g", AB:"n" },
+  { name: "Kuhmilch", emoji: "🥛", kat: "Milch & Eier", 0:"v", A:"v", B:"g", AB:"n" },
+  { name: "Joghurt", emoji: "🥛", kat: "Milch & Eier", 0:"v", A:"n", B:"g", AB:"g" },
+  { name: "Topfen / Quark", emoji: "🧀", kat: "Milch & Eier", 0:"v", A:"n", B:"g", AB:"g" },
+  { name: "Mozzarella", emoji: "🧀", kat: "Milch & Eier", 0:"v", A:"n", B:"n", AB:"g" },
+  { name: "Emmentaler", emoji: "🧀", kat: "Milch & Eier", 0:"v", A:"v", B:"g", AB:"g" },
+  { name: "Schafskäse / Feta", emoji: "🧀", kat: "Milch & Eier", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Ziegenkäse", emoji: "🧀", kat: "Milch & Eier", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Sauerrahm", emoji: "🥛", kat: "Milch & Eier", 0:"v", A:"v", B:"n", AB:"n" },
+  { name: "Obers / Sahne", emoji: "🥛", kat: "Milch & Eier", 0:"v", A:"v", B:"n", AB:"n" },
+  { name: "Schlagobers", emoji: "🥛", kat: "Milch & Eier", 0:"v", A:"v", B:"n", AB:"n" },
+
+  // GETREIDE & BROT
+  { name: "Weizenbrot", emoji: "🍞", kat: "Getreide & Brot", 0:"v", A:"n", B:"v", AB:"n" },
+  { name: "Vollkornbrot (Weizen)", emoji: "🍞", kat: "Getreide & Brot", 0:"v", A:"v", B:"v", AB:"v" },
+  { name: "Roggenbrot", emoji: "🍞", kat: "Getreide & Brot", 0:"n", A:"n", B:"v", AB:"n" },
+  { name: "Dinkelbrot", emoji: "🍞", kat: "Getreide & Brot", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Reiswaffeln", emoji: "🍘", kat: "Getreide & Brot", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Essener Brot", emoji: "🍞", kat: "Getreide & Brot", 0:"g", A:"g", B:"n", AB:"g" },
+  { name: "Reis (weiß)", emoji: "🍚", kat: "Getreide & Brot", 0:"n", A:"n", B:"g", AB:"n" },
+  { name: "Reis (braun)", emoji: "🍚", kat: "Getreide & Brot", 0:"n", A:"n", B:"g", AB:"n" },
+  { name: "Nudeln (Weizen)", emoji: "🍝", kat: "Getreide & Brot", 0:"v", A:"n", B:"v", AB:"n" },
+  { name: "Nudeln (Dinkel)", emoji: "🍝", kat: "Getreide & Brot", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Haferflocken", emoji: "🌾", kat: "Getreide & Brot", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Mais / Polenta", emoji: "🌽", kat: "Getreide & Brot", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Buchweizen", emoji: "🌾", kat: "Getreide & Brot", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Hirse", emoji: "🌾", kat: "Getreide & Brot", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Quinoa", emoji: "🌾", kat: "Getreide & Brot", 0:"n", A:"n", B:"n", AB:"n" },
+
+  // GEMÜSE
+  { name: "Brokkoli", emoji: "🥦", kat: "Gemüse", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Spinat", emoji: "🥬", kat: "Gemüse", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Karotten", emoji: "🥕", kat: "Gemüse", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Zucchini", emoji: "🥒", kat: "Gemüse", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Kürbis", emoji: "🎃", kat: "Gemüse", 0:"n", A:"g", B:"g", AB:"g" },
+  { name: "Paprika (rot)", emoji: "🫑", kat: "Gemüse", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Paprika (grün)", emoji: "🫑", kat: "Gemüse", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Tomaten", emoji: "🍅", kat: "Gemüse", 0:"v", A:"n", B:"n", AB:"v" },
+  { name: "Kartoffeln", emoji: "🥔", kat: "Gemüse", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Süßkartoffeln", emoji: "🍠", kat: "Gemüse", 0:"g", A:"n", B:"n", AB:"n" },
+  { name: "Zwiebeln", emoji: "🧅", kat: "Gemüse", 0:"g", A:"g", B:"n", AB:"g" },
+  { name: "Knoblauch", emoji: "🧄", kat: "Gemüse", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Salat (grüner)", emoji: "🥗", kat: "Gemüse", 0:"n", A:"g", B:"g", AB:"g" },
+  { name: "Gurke", emoji: "🥒", kat: "Gemüse", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Sellerie", emoji: "🌿", kat: "Gemüse", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Rote Bete", emoji: "🫐", kat: "Gemüse", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Fenchel", emoji: "🌿", kat: "Gemüse", 0:"n", A:"g", B:"n", AB:"n" },
+  { name: "Artischocken", emoji: "🌿", kat: "Gemüse", 0:"g", A:"g", B:"n", AB:"n" },
+  { name: "Kohl (Weißkohl)", emoji: "🥬", kat: "Gemüse", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Rotkraut", emoji: "🥬", kat: "Gemüse", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Kraut (Sauerkraut)", emoji: "🥬", kat: "Gemüse", 0:"v", A:"n", B:"n", AB:"v" },
+  { name: "Mais (Körner)", emoji: "🌽", kat: "Gemüse", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Champignons", emoji: "🍄", kat: "Gemüse", 0:"n", A:"v", B:"n", AB:"n" },
+  { name: "Erbsen", emoji: "🫛", kat: "Gemüse", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Bohnen (grüne)", emoji: "🫛", kat: "Gemüse", 0:"n", A:"n", B:"v", AB:"n" },
+
+  // HÜLSENFRÜCHTE
+  { name: "Linsen", emoji: "🫘", kat: "Hülsenfrüchte", 0:"v", A:"g", B:"n", AB:"n" },
+  { name: "Kidneybohnen", emoji: "🫘", kat: "Hülsenfrüchte", 0:"v", A:"g", B:"v", AB:"n" },
+  { name: "Kichererbsen", emoji: "🫘", kat: "Hülsenfrüchte", 0:"n", A:"g", B:"n", AB:"n" },
+  { name: "Sojaprodukte / Tofu", emoji: "🫘", kat: "Hülsenfrüchte", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Weiße Bohnen", emoji: "🫘", kat: "Hülsenfrüchte", 0:"v", A:"n", B:"v", AB:"n" },
+
+  // OBST
+  { name: "Äpfel", emoji: "🍎", kat: "Obst", 0:"n", A:"g", B:"g", AB:"g" },
+  { name: "Birnen", emoji: "🍐", kat: "Obst", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Zwetschken / Pflaumen", emoji: "🍑", kat: "Obst", 0:"g", A:"g", B:"n", AB:"n" },
+  { name: "Kirschen", emoji: "🍒", kat: "Obst", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Weintrauben", emoji: "🍇", kat: "Obst", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Erdbeeren", emoji: "🍓", kat: "Obst", 0:"n", A:"v", B:"n", AB:"v" },
+  { name: "Heidelbeeren", emoji: "🫐", kat: "Obst", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Ananas", emoji: "🍍", kat: "Obst", 0:"g", A:"n", B:"n", AB:"n" },
+  { name: "Mango", emoji: "🥭", kat: "Obst", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Bananen", emoji: "🍌", kat: "Obst", 0:"v", A:"n", B:"g", AB:"n" },
+  { name: "Orangen", emoji: "🍊", kat: "Obst", 0:"v", A:"v", B:"n", AB:"n" },
+  { name: "Zitronen", emoji: "🍋", kat: "Obst", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Grapefruit", emoji: "🍊", kat: "Obst", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Wassermelone", emoji: "🍉", kat: "Obst", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Kiwi", emoji: "🥝", kat: "Obst", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Feigen", emoji: "🍑", kat: "Obst", 0:"g", A:"g", B:"n", AB:"g" },
+  { name: "Pflaumen / Trockenpflaumen", emoji: "🍑", kat: "Obst", 0:"g", A:"g", B:"n", AB:"n" },
+  { name: "Avocado", emoji: "🥑", kat: "Obst", 0:"v", A:"n", B:"n", AB:"n" },
+
+  // NÜSSE & SAMEN
+  { name: "Walnüsse", emoji: "🌰", kat: "Nüsse & Samen", 0:"g", A:"g", B:"n", AB:"g" },
+  { name: "Kürbiskerne", emoji: "🌱", kat: "Nüsse & Samen", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Leinsamem", emoji: "🌱", kat: "Nüsse & Samen", 0:"n", A:"g", B:"n", AB:"n" },
+  { name: "Sonnenblumenkerne", emoji: "🌻", kat: "Nüsse & Samen", 0:"v", A:"n", B:"n", AB:"v" },
+  { name: "Sesam", emoji: "🌱", kat: "Nüsse & Samen", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Erdnüsse", emoji: "🥜", kat: "Nüsse & Samen", 0:"v", A:"g", B:"v", AB:"n" },
+  { name: "Cashews", emoji: "🥜", kat: "Nüsse & Samen", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Mandeln", emoji: "🥜", kat: "Nüsse & Samen", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Pistazien", emoji: "🥜", kat: "Nüsse & Samen", 0:"v", A:"n", B:"n", AB:"n" },
+  { name: "Haselnüsse", emoji: "🌰", kat: "Nüsse & Samen", 0:"n", A:"n", B:"n", AB:"n" },
+
+  // ÖLE & FETTE
+  { name: "Olivenöl", emoji: "🫒", kat: "Öle & Fette", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Leinöl", emoji: "🫒", kat: "Öle & Fette", 0:"g", A:"g", B:"n", AB:"n" },
+  { name: "Kürbiskernöl", emoji: "🫒", kat: "Öle & Fette", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Rapsöl", emoji: "🫒", kat: "Öle & Fette", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Sonnenblumenöl", emoji: "🫒", kat: "Öle & Fette", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Kokosfett", emoji: "🫒", kat: "Öle & Fette", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Margarine", emoji: "🧈", kat: "Öle & Fette", 0:"v", A:"v", B:"v", AB:"v" },
+
+  // GEWÜRZE & SAUCEN
+  { name: "Salz", emoji: "🧂", kat: "Gewürze", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Pfeffer (schwarz)", emoji: "🌶️", kat: "Gewürze", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Cayennepfeffer", emoji: "🌶️", kat: "Gewürze", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Kurkuma", emoji: "🌿", kat: "Gewürze", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Ingwer", emoji: "🫚", kat: "Gewürze", 0:"n", A:"g", B:"g", AB:"g" },
+  { name: "Ketchup", emoji: "🍅", kat: "Gewürze", 0:"v", A:"v", B:"v", AB:"v" },
+  { name: "Essig (Apfelessig)", emoji: "🍶", kat: "Gewürze", 0:"n", A:"v", B:"n", AB:"v" },
+  { name: "Essig (Weinessig)", emoji: "🍶", kat: "Gewürze", 0:"v", A:"v", B:"n", AB:"v" },
+  { name: "Mayonnaise", emoji: "🫙", kat: "Gewürze", 0:"v", A:"v", B:"v", AB:"v" },
+  { name: "Sojasauce", emoji: "🫙", kat: "Gewürze", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Curry", emoji: "🌿", kat: "Gewürze", 0:"n", A:"n", B:"g", AB:"n" },
+
+  // GETRÄNKE
+  { name: "Wasser", emoji: "💧", kat: "Getränke", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Grüner Tee", emoji: "🍵", kat: "Getränke", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Kräutertee", emoji: "🍵", kat: "Getränke", 0:"n", A:"g", B:"g", AB:"g" },
+  { name: "Schwarzer Tee", emoji: "🍵", kat: "Getränke", 0:"v", A:"v", B:"n", AB:"n" },
+  { name: "Kaffee", emoji: "☕", kat: "Getränke", 0:"v", A:"n", B:"n", AB:"g" },
+  { name: "Kaffee (entkoffeiniert)", emoji: "☕", kat: "Getränke", 0:"v", A:"g", B:"n", AB:"g" },
+  { name: "Rotwein", emoji: "🍷", kat: "Getränke", 0:"n", A:"g", B:"n", AB:"g" },
+  { name: "Weißwein", emoji: "🥂", kat: "Getränke", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Bier", emoji: "🍺", kat: "Getränke", 0:"n", A:"v", B:"v", AB:"v" },
+  { name: "Fruchtsäfte (Apfel)", emoji: "🧃", kat: "Getränke", 0:"n", A:"g", B:"n", AB:"n" },
+  { name: "Orangensaft", emoji: "🧃", kat: "Getränke", 0:"v", A:"v", B:"n", AB:"n" },
+  { name: "Karottensaft", emoji: "🧃", kat: "Getränke", 0:"g", A:"g", B:"g", AB:"g" },
+  { name: "Mineralwasser", emoji: "💧", kat: "Getränke", 0:"g", A:"g", B:"g", AB:"g" },
+
+  // SÜSSES
+  { name: "Schokolade (dunkel)", emoji: "🍫", kat: "Süßes", 0:"g", A:"n", B:"n", AB:"n" },
+  { name: "Honig", emoji: "🍯", kat: "Süßes", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Zucker (weiß)", emoji: "🍬", kat: "Süßes", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Marmelade", emoji: "🍓", kat: "Süßes", 0:"n", A:"n", B:"n", AB:"n" },
+  { name: "Vanilleeis", emoji: "🍦", kat: "Süßes", 0:"v", A:"v", B:"n", AB:"n" },
+];
+
+const bloodTypes = ["0","A","B","AB"];
+const bloodLabels = { "0":"0", "A":"A", "B":"B", "AB":"AB" };
+const bloodSub = { "0":"Der Jäger", "A":"Der Landwirt", "B":"Der Nomade", "AB":"Der Rätselhafte" };
+
+let activeBT = "0";
+let activeCat = "Alle";
+let activeFilters = { g: true, n: true, v: true };
+
+function toggleFilter(type, btn) {
+  activeFilters[type] = !activeFilters[type];
+  btn.classList.toggle('active', activeFilters[type]);
+  render();
+}
+
+function getKats() {
+  return ["Alle", ...new Set(foods.map(f => f.kat))];
+}
+
+function badgeLabel(val) {
+  if (val === "g") return "Bekömmlich";
+  if (val === "n") return "Neutral";
+  return "Vermeiden";
+}
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase();
+
+  // Blood selector
+  document.getElementById("bloodSel").innerHTML = bloodTypes.map(bt => `
+    <button class="blood-btn ${activeBT === bt ? 'active' : ''}" onclick="setBT('${bt}')">
+      ${bloodLabels[bt]}
+      <span>${bloodSub[bt]}</span>
+    </button>
+  `).join("");
+
+  // Cat tabs
+  document.getElementById("catTabs").innerHTML = getKats().map(k => `
+    <button class="cat-tab ${activeCat === k ? 'active' : ''}" onclick="setCat('${k}')">${k}</button>
+  `).join("");
+
+  // Filter
+  let filtered = foods;
+  if (activeCat !== "Alle") filtered = filtered.filter(f => f.kat === activeCat);
+  filtered = filtered.filter(f => activeFilters[f[activeBT]]);
+  if (q) filtered = filtered.filter(f => f.name.toLowerCase().includes(q) || f.kat.toLowerCase().includes(q));
+
+  const listEl = document.getElementById("list");
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<div class="empty">Nichts gefunden.</div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(f => {
+    const val = f[activeBT];
+    return `
+      <div class="item ${val}">
+        <div class="item-left">
+          <span class="item-emoji">${f.emoji}</span>
+          <div>
+            <div class="item-name">${f.name}</div>
+            <div class="item-cat">${f.kat}</div>
+          </div>
+        </div>
+        <span class="item-badge badge-${val}">${badgeLabel(val)}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function setBT(bt) { activeBT = bt; render(); }
+function setCat(k) { activeCat = k; render(); }
+
+render();
+</script>
+</body>
+</html>
